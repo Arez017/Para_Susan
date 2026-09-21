@@ -627,7 +627,7 @@ Ese sí está escrito por mí, no por una página.</div>
   <section class="section hidden" id="panel">
     <div class="panel-header">
       <div>
-        <div class="eyebrow">Panel de arez</div>
+        <div class="eyebrow" id="panelOwnerLabel">Panel de arez</div>
         <h2 class="subtitle" style="margin:0">Bandeja de cartas 💌</h2>
       </div>
       <button class="btn small ghost" id="logoutBtn">Salir</button>
@@ -685,11 +685,10 @@ Ese sí está escrito por mí, no por una página.</div>
 // ============================================================
 // CONFIG
 // ============================================================
-const SUPABASE_URL = "https://fxmswftbcjwudyaxbeiz.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_BRBWxTulDioankbgobnYfw_BAf8ssvY";
+const SUPABASE_URL = "PEGA_AQUI_TU_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "PEGA_AQUI_TU_SUPABASE_PUBLISHABLE_KEY";
 const hasSupabase = !SUPABASE_URL.includes("PEGA_AQUI") && !SUPABASE_ANON_KEY.includes("PEGA_AQUI");
 const sb = hasSupabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-
 
 // Fecha de inicio de las 365 (día 1). Cámbiala o usa el panel.
 const DEFAULT_START_DATE = "2026-09-21";
@@ -720,6 +719,21 @@ const YOUTUBE_VIDEO_ID = "szeA9tvItJY"; // Cuando Nadie Ve — Morat
 // ============================================================
 const $ = id => document.getElementById(id);
 let currentUser = null;
+
+function panelNameFromUser(user) {
+  const email = (user && user.email || "").toLowerCase();
+  if (email.includes("susan")) return "Susan";
+  if (email.includes("arez")) return "arez";
+  return email.split("@")[0] || "ustedes";
+}
+function applyPanelIdentity() {
+  const name = panelNameFromUser(currentUser);
+  const lab = document.getElementById("panelOwnerLabel");
+  if (lab) lab.textContent = "Panel de " + name;
+  const btn = document.getElementById("btnPanel");
+  if (btn) btn.title = "Panel de " + name;
+}
+
 let lettersCache = [];
 let filterMode = "all";
 let musicOn = false;
@@ -1465,6 +1479,7 @@ async function checkSession() {
     currentUser = session.user;
     $("loginBox").classList.add("hidden");
     $("inboxBox").classList.remove("hidden");
+    applyPanelIdentity();
     loadLetters(); loadPings(); setupUnlockAdmin(); refreshPhotoUploadUI();
   }
 }
@@ -1484,7 +1499,8 @@ $("doLogin").onclick = async () => {
   $("loginBox").classList.add("hidden");
   $("inboxBox").classList.remove("hidden");
   $("loginStatus").textContent = "";
-  toast("Bienvenido, arez ❤️");
+  applyPanelIdentity();
+  toast("Bienvenido, " + panelNameFromUser(currentUser) + " ❤️");
   loadLetters(); loadPings(); setupUnlockAdmin(); refreshPhotoUploadUI();
 };
 $("logoutBtn").onclick = async () => {
@@ -1493,6 +1509,8 @@ $("logoutBtn").onclick = async () => {
   $("loginBox").classList.remove("hidden");
   $("inboxBox").classList.add("hidden");
   lettersCache = [];
+  const lab = document.getElementById("panelOwnerLabel");
+  if (lab) lab.textContent = "Panel privado";
   refreshPhotoUploadUI();
   toast("Sesión cerrada");
 };
