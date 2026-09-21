@@ -685,10 +685,11 @@ Ese sí está escrito por mí, no por una página.</div>
 // ============================================================
 // CONFIG
 // ============================================================
-const SUPABASE_URL = "PEGA_AQUI_TU_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "PEGA_AQUI_TU_SUPABASE_PUBLISHABLE_KEY";
+const SUPABASE_URL = "https://fxmswftbcjwudyaxbeiz.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_BRBWxTulDioankbgobnYfw_BAf8ssvY";
 const hasSupabase = !SUPABASE_URL.includes("PEGA_AQUI") && !SUPABASE_ANON_KEY.includes("PEGA_AQUI");
 const sb = hasSupabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
 
 // Fecha de inicio de las 365 (día 1). Cámbiala o usa el panel.
 const DEFAULT_START_DATE = "2026-09-21";
