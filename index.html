@@ -371,9 +371,17 @@ label { display: block; margin-bottom: 6px; font-size: 0.86rem; color: var(--mut
 .photo-item > div {
   width: 100%; height: 100%; display: grid; place-items: center; font-size: 2.2rem;
 }
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #1a101c;
+}
 .photo-caption {
   position: absolute; bottom: 0; left: 0; right: 0; padding: 7px;
-  background: linear-gradient(transparent, rgba(0,0,0,0.7)); font-size: 0.72rem; color: #fff;
+  background: linear-gradient(transparent, rgba(0,0,0,0.75)); font-size: 0.72rem; color: #fff;
+  z-index: 1;
 }
 
 /* Panel */
@@ -864,10 +872,11 @@ async function loadGallery() {
     gallery.innerHTML = '<p class="muted" style="grid-column:1/-1;text-align:center;padding:20px">Aún no hay fotos. ¡Suban la primera! 📸</p>';
     return;
   }
-  gallery.innerHTML = data.map(p =>
-    '<div class="photo-item"><img src="' + escapeHtml(p.image_url) + '" alt=""><div class="photo-caption">' +
-    escapeHtml(p.caption || "Sin título") + '</div></div>'
-  ).join("");
+  gallery.innerHTML = data.map(p => {
+    const src = String(p.image_url || "").replace(/"/g, "&quot;");
+    return '<div class="photo-item"><img src="' + src + '" alt="" loading="lazy" onerror="this.style.opacity=0.3;this.alt=\'No se pudo cargar\';">' +
+      '<div class="photo-caption">' + escapeHtml(p.caption || "Sin título") + '</div></div>';
+  }).join("");
 }
 loadGallery();
 
@@ -901,7 +910,11 @@ if (btnUploadPhoto) {
     st.textContent = "Subiendo...";
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
     const pathName = "album/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + "." + ext;
-    const { error: upErr } = await sb.storage.from("love-photos").upload(pathName, file, { upsert: false });
+    const { error: upErr } = await sb.storage.from("love-photos").upload(pathName, file, {
+      upsert: false,
+      contentType: file.type || "image/jpeg",
+      cacheControl: "3600"
+    });
     if (upErr) {
       console.error(upErr);
       st.textContent = "Error al subir: " + upErr.message;
