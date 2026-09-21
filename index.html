@@ -830,8 +830,9 @@ if (btnTePienso) {
     }
     btnTePienso.disabled = true;
     st.textContent = "Enviando...";
+    const who = currentUser ? panelNameFromUser(currentUser) : "Susan";
     const { error } = await sb.from("love_pings").insert({
-      from_name: "Susan",
+      from_name: who,
       note: "Te pienso 💭"
     });
     btnTePienso.disabled = false;
